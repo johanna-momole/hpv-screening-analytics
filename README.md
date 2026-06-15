@@ -106,6 +106,30 @@ hpv-screening-analytics/
 
 ---
 
+## Dashboard Preview
+
+### Overview
+
+![Dashboard overview](screenshots/Dashboard_Overview_1.png)
+
+### Demographic Analysis
+
+![Demographic analysis](screenshots/Demographics_1.png)
+
+### Provider Performance
+
+![Provider analytics](screenshots/Providers_1.png)
+
+### Geographic Analysis
+
+![Geographic analysis](screenshots/Geography_1.png)
+
+### No-Show Risk Explorer
+
+![No-show risk explorer](screenshots/No_Show_1.png)
+
+---
+
 ## Running Tests
 
 ```bash
