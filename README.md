@@ -30,7 +30,7 @@ visualization for HPV cervical cancer screening workflows.
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/<your-username>/hpv-screening-analytics.git
+git clone https://github.com/johanna-momole/hpv-screening-analytics.git
 cd hpv-screening-analytics
 
 # 2. Create and activate a virtual environment
