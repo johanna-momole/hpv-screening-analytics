@@ -21,10 +21,11 @@ VALID_RESULTS   = {"Negative", "Positive", "Inconclusive", "Abnormal"}
 
 
 def load_tables(db_path: Path = DB_PATH) -> dict[str, pd.DataFrame]:
-    engine = create_engine(f"sqlite:///{db_path}")
+    import sqlite3
     tables = ["insurance_type", "hospital", "screening_type", "patient",
               "location", "provider", "appointment", "screening", "follow_up"]
-    return {t: pd.read_sql_table(t, engine) for t in tables}
+    with sqlite3.connect(db_path) as con:
+        return {t: pd.read_sql(f"SELECT * FROM {t}", con) for t in tables}
 
 
 # ─── Row-level validators ─────────────────────────────────────────────────────

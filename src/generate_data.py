@@ -17,10 +17,11 @@ import random
 from datetime import date, timedelta
 from pathlib import Path
 
+import sqlite3
+
 import numpy as np
 import pandas as pd
 from faker import Faker
-from sqlalchemy import create_engine, text
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 
@@ -489,13 +490,9 @@ CREATE TABLE IF NOT EXISTS follow_up (
 """
 
 
-def write_to_db(engine, tables: dict[str, pd.DataFrame]) -> None:
-    with engine.connect() as conn:
-        for stmt in DDL.strip().split(";"):
-            s = stmt.strip()
-            if s:
-                conn.execute(text(s))
-        conn.commit()
+def write_to_db(db_path: Path, tables: dict[str, pd.DataFrame]) -> None:
+    import sqlite3
+    db_file = str(db_path)
 
     # Drop temp columns before loading
     pat = tables["patient"].drop(
@@ -514,9 +511,20 @@ def write_to_db(engine, tables: dict[str, pd.DataFrame]) -> None:
         ("screening",      tables["screening"]),
         ("follow_up",      tables["follow_up"]),
     ]
-    for tname, df in order:
-        df.to_sql(tname, engine, if_exists="replace", index=False)
-        print(f"  Loaded {len(df):>5} rows → {tname}")
+
+    with sqlite3.connect(db_file) as con:
+        for stmt in DDL.strip().split(";"):
+            s = stmt.strip()
+            if s:
+                try:
+                    con.execute(s)
+                except sqlite3.OperationalError:
+                    pass
+        con.commit()
+
+        for tname, df in order:
+            df.to_sql(tname, con, if_exists="replace", index=False)
+            print(f"  Loaded {len(df):>5} rows -> {tname}")
 
 
 # ─── Entry point ──────────────────────────────────────────────────────────────
@@ -552,8 +560,7 @@ def generate(n_patients: int = N_PATIENTS, seed: int = DEFAULT_SEED) -> None:
     }
 
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
-    engine = create_engine(f"sqlite:///{DB_PATH}")
-    write_to_db(engine, tables)
+    write_to_db(DB_PATH, tables)
 
     print(f"\nDatabase written to: {DB_PATH}")
     print("\nSummary:")

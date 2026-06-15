@@ -19,10 +19,11 @@ DB_PATH = Path(__file__).resolve().parents[1] / "data" / "hpv_screening.db"
 
 def load_all(db_path: Path = DB_PATH) -> dict[str, pd.DataFrame]:
     """Load all tables and return as a dict of DataFrames."""
-    engine = create_engine(f"sqlite:///{db_path}")
+    import sqlite3
     tables = ["insurance_type", "hospital", "screening_type", "patient",
               "location", "provider", "appointment", "screening", "follow_up"]
-    dfs = {t: pd.read_sql_table(t, engine) for t in tables}
+    with sqlite3.connect(db_path) as con:
+        dfs = {t: pd.read_sql(f"SELECT * FROM {t}", con) for t in tables}
 
     # Parse dates
     dfs["patient"]["date_of_birth"]        = pd.to_datetime(dfs["patient"]["date_of_birth"], errors="coerce")
